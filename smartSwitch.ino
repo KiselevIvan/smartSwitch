@@ -62,15 +62,18 @@ String getContentType(String filename) {     // Функция, возвраща
   return "text/plain";                                                  // Если ни один из типов файла не совпал, то считаем что содержимое файла текстовое, отдаем соответствующий заголовок и завершаем выполнение функции
 }
 
-void sendSensorDataToMqttBroker(byte intervalSec){
-  static unsigned int lastUpdate=0;
-  if((millis()-intervalSec)>(intervalSec*1000)){
+void sendSensorDataToMqttBroker(){
+  if (mqttClient.connected()) {
     String message = String(pir3.getState());
-    if (mqttClient.connected()) {
-      mqttClient.publish(pirSensorTopic, message.c_str());
+    mqttClient.publish(pirSensorTopic, message.c_str());
     }
-    lastUpdate=millis();
-  }
+}
+
+void sendRelayDataToMqttBroker(bool relayState){
+  if (mqttClient.connected()) {
+    String message = String(relayState);
+    mqttClient.publish(relayTopic, message.c_str());
+    }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -83,7 +86,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 //  }
 }
-
 
 bool mqttConnected(byte interval){
   static unsigned int last = 0;
@@ -172,7 +174,8 @@ String eepromdump()
 void syncSensor(unsigned int intervalMilSec){
   static unsigned int lastUpdate=0;
   if(millis()-lastUpdate>intervalMilSec){
-    pir3.syncState();
+    if (pir3.syncState())
+      sendSensorDataToMqttBroker();   
     lastUpdate=millis();
   }
 }
@@ -182,6 +185,7 @@ void setup(void) {
   //выставляем режимы работы необходимых пинов  
   conf.load(); //загружаем параметры из памяти
   relay0.init(relay_pin);
+  sendRelayDataToMqttBroker(relay0.getState()); 
   pir3.init(pir_pin);
   WiFi.mode(WIFI_STA);//преход в режим клиента
   conf.wifi.set_mode(true);
@@ -262,8 +266,10 @@ void setup(void) {
   } else if (server.hasArg("set")){           
               if (server.hasArg("name"))
                 relay0.setName(server.arg("name"));
-              if (server.hasArg("state"))
+              if (server.hasArg("state")){
                 relay0.setState(String(server.arg("state")).equals("1"));
+                sendRelayDataToMqttBroker(relay0.getState());
+              }
             message="Success";            
          } else if (server.hasArg("save")){
                 relay0.save();
@@ -308,8 +314,8 @@ void setup(void) {
   MDNS.begin(host);
   server.begin();
   ftpSrv.begin("admin", "admin");
-  relay0.load();
-  pir3.load();
+  //relay0.load();
+  //pir3.load();
 }
 
 void loop(void) {
@@ -318,7 +324,6 @@ void loop(void) {
   mqttClient.loop();
   mqttConnected(10000);
   syncSensor(1000);
-  sendSensorDataToMqttBroker(1);
   delay(100);
   if (conf.wifi.get_mode()) {//true - client, если в режиме клиента, проверяем подключение
     if (WiFi.status() != WL_CONNECTED)
