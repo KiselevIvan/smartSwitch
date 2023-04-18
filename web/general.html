@@ -1,0 +1,142 @@
+<html>
+	<head>
+		<title>light control - Alpha version</title>
+		<link rel="stylesheet" href="style.css">
+		<meta charset="utf-8">
+	</head>
+	<body>
+    	<div>
+	    	<input type="button" value="Настройки реле" id="buttonRelaySettingsDialogOpen">
+    		<dialog id="relaySettingsDialog">
+	        		<table>         
+	          			<tr>
+	           				<td> <p>Порядковый номер</p> </td>
+	           				<td>
+	            				<select id="relaySettingsSetNumber" name="set">
+	            					<option>1</option>	                   					
+	            				</select>
+	           				</td>
+	          			</tr>
+	          			<tr>
+	           				<td> <p>Подпись</p> </td>
+	           				<td> <input id="relaySettingsSetName" type="text" name="name"> </td>
+	           			</tr>            				
+	        		</table>
+	        		<p>
+	           			<td> <input type="button" id="relaySettingsSubmit" value="Ок"> </td>
+	           			<td> <input type="button" value="Отмена" onclick="document.getElementById('relaySettingsDialog').close()"> </td>
+	        		</p>
+	      	</dialog>
+	    	
+	      	<input type="button" value="Настройки датчика" id="buttonSensorSettingsDialogOpen">
+    		<dialog id="sensorSettingsDialog">
+	        		<table>         
+	          			<tr>
+	           				<td> <p>Порядковый номер</p> </td>
+	           				<td>
+	            				<select id="sensorSettingsSetNumber" name="set">
+	            					<option>1</option>	                   					
+	            				</select>
+	           				</td>
+	          			</tr>
+	          			<tr>
+	           				<td> <p>Подпись</p> </td>
+	           				<td> <input id="sensorSettingsSetName" type="text" name="name"> </td>
+	           			</tr>            				
+	        		</table>
+	        		<p>
+	           			<td> <input type="button" id="sensorSettingsSubmit" value="Ок"> </td>
+	           			<td> <input type="button" value="Отмена" onclick="document.getElementById('sensorSettingsDialog').close()"> </td>
+	        		</p>
+	      	</dialog>
+
+			<div id="relaysPanel">			      
+	      		<div class="relays">
+	        		<p id="sw1Name">relay 1</p>
+	        		<input id="sw1" type="checkbox"/>
+	       			<label for="sw1"/>        
+	      		</div>
+	      	</div>
+
+	      	<div id="sensorsPanel">			      
+	      		<div class="sensors">
+	        		<p id="sens1Name">sensor 1</p>
+	        		<input id="sens1" type="checkbox"/>
+	       			<label for="sens1"/>        
+	      		</div>
+	      	</div>
+
+		</div>
+
+		<script>
+
+			window.onload=function(){
+				document.getElementById('sw1').addEventListener('change',setRelay);
+				
+				document.getElementById('relaySettingsSubmit').addEventListener('click',function(){
+					var data = "set="+document.getElementById('relaySettingsSetNumber').value;
+					data+="&name="+document.getElementById('relaySettingsSetName').value;
+					var request = new XMLHttpRequest();
+					request.open('GET','/relay?'+data);
+					request.send();
+					document.getElementById('relaySettingsDialog').close();
+				})
+
+				document.getElementById('buttonRelaySettingsDialogOpen').addEventListener('click',function(){
+					document.getElementById('relaySettingsDialog').showModal();
+				})
+				document.getElementById('buttonSensorSettingsDialogOpen').addEventListener('click',function(){
+					document.getElementById('sensorSettingsDialog').showModal();
+				})
+			}
+
+			setInterval(function(){
+				updateData();
+			}, 3000);
+			
+
+			function setRelay(){
+				var data='set=1&state='+((document.getElementById('sw1').checked)?'1':'0');
+					//data+='&name='+document.getElementById('sw1Name').innerHTML;					
+				var request = new XMLHttpRequest();
+				request.open('GET','/relay?'+data,false);
+				request.send();
+			}
+
+
+			function updateData(){
+				loadCurrentRelaysState();
+				loadCurrentSensorState();
+			};
+
+			function loadCurrentRelaysState(){
+				var data=0;
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = function() {
+    				if (this.readyState == 4 && this.status == 200) {
+      					const urlParams= new URLSearchParams(this.responseText);
+							document.getElementById('sw1').checked=(urlParams.get('state1')==='1')?true:false;
+							document.getElementById('sw1Name').innerHTML=urlParams.get('name1');
+    				}
+    			};
+				request.open('GET','/relay?get',false);
+				request.send();
+			};
+
+			function loadCurrentSensorState(){
+				var data=0;
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = function() {
+    				if (this.readyState == 4 && this.status == 200) {
+      					const urlParams= new URLSearchParams(this.responseText);
+							document.getElementById('sens1').checked=(urlParams.get('state1')==='1')?true:false;
+							document.getElementById('sens1Name').innerHTML=urlParams.get('name1');
+    				}
+    			};
+				request.open('GET','/sensor?get',false);
+				request.send();
+			};
+
+		</script>
+	</body>
+</html>

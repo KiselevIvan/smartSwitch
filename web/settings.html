@@ -1,0 +1,65 @@
+<html>
+	<head>
+		<title>
+			Settings
+		</title>
+		<link rel="stylesheet" href="style.css">
+		<meta charset="utf-8">
+	</head>
+	<body>
+		<div align="center">
+			<form action='/wifi' method='POST' >
+				<table>
+					<tr>
+						<td colspan="2" align="center">Введите имя точки доступа и пароль</td>
+					</tr>
+					<tr>
+						<td>Имя:</td>
+						<td><input type='text' name='SSID' placeholder='SSID'></td>
+					</tr>
+					<tr>
+						<td>Пароль:</td>
+						<td><input type='password' name='PASSAP' placeholder='Password'></td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center"><input type='submit' name='SUBMIT' value='Подключиться к WI-FI'></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		<div align="center">
+			<form action='/telegram_token' method='POST'>
+				<table>
+					<tr>
+						<td colspan="2" align="center">Введите токен телеграм бота</td>
+					</tr>
+					<tr>
+						<td>Токен:</td>
+						<td><input type='text' name='token' placeholder='Token:'></td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center"><input type='submit' name='SUBMIT' value='Установить токен'></td>
+					</tr>
+				</table>			
+			</form>
+		</div>
+
+		<a href='upload.html'>
+			Обновление прошивки
+		</a>
+		
+		<br>
+		<br>		 
+		
+		<input type="button" value="Перезагрузка" id="bReboot">
+		<script>
+			var bReboot = document.getElementById("bReboot");
+			function reboot() {
+				var request = new XMLHttpRequest();
+				request.open('POST','/reboot',false);
+				request.send();
+			}
+			bReboot.addEventListener('click', reboot);
+		</script>
+	</body>
+</html>
