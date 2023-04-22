@@ -105,9 +105,9 @@ bool mqttConnected(byte interval){
 bool clientConnected(int Seconds) { //Подключение к известной точке доступа WiFi, если удалось подключение в течении заданного времени возвращаем True, иначе False
   WiFi.begin(conf.wifi.get_ssid().c_str(), conf.wifi.get_pass().c_str());
   for (int i = 0; i < Seconds; i++) {
-    digitalWrite(LED_BUILTIN, LOW);
+    //digitalWrite(LED_BUILTIN, LOW);
     delay(500);
-    digitalWrite(LED_BUILTIN, HIGH);
+    //digitalWrite(LED_BUILTIN, HIGH);
     delay(500);
     if (WiFi.status() == WL_CONNECTED){
      return true;
@@ -194,10 +194,10 @@ void setup(void) {
     WiFi.mode(WIFI_AP);
     conf.wifi.set_mode(false);
     WiFi.softAP("smartSwitch", "test1234"); //ssid password
-    digitalWrite(LED_BUILTIN, LOW);
+    //digitalWrite(LED_BUILTIN, LOW);
   }
   else { //если удалось подключиться к известной сети
-    digitalWrite(LED_BUILTIN, LOW);
+    //digitalWrite(LED_BUILTIN, LOW);
   }
   mqttClient.setServer(mqtt_server, 1883);
   mqttClient.setCallback(callback);
@@ -329,7 +329,7 @@ void loop(void) {
     if (WiFi.status() != WL_CONNECTED)
       clientConnected(30);
     else {
-      digitalWrite(LED_BUILTIN, LOW);
+      //digitalWrite(LED_BUILTIN, LOW);
     }
   }
 }
