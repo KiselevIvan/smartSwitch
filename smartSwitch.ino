@@ -181,7 +181,7 @@ void syncSensor(unsigned int intervalMilSec){
 }
 
 void setup(void) {
-  delay(1000);
+  delay(60000);
   //выставляем режимы работы необходимых пинов  
   conf.load(); //загружаем параметры из памяти
   relay0.init(relay_pin);
