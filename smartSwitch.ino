@@ -77,14 +77,14 @@ void sendRelayDataToMqttBroker(bool relayState){
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-//  if (strcmp(topic, relayTopic) == 0) {
+  if (strcmp(topic, relayTopic) == 0) {
     if ((char)payload[0] == '1') {
       relay0.setState(true);
     }
     else if ((char)payload[0] == '0') {
       relay0.setState(false);
     }
-//  }
+  }
 }
 
 bool mqttConnected(byte interval){
@@ -181,12 +181,8 @@ void syncSensor(unsigned int intervalMilSec){
 }
 
 void setup(void) {
-  delay(60000);
   //выставляем режимы работы необходимых пинов  
   conf.load(); //загружаем параметры из памяти
-  relay0.init(relay_pin);
-  sendRelayDataToMqttBroker(relay0.getState()); 
-  pir3.init(pir_pin);
   WiFi.mode(WIFI_STA);//преход в режим клиента
   conf.wifi.set_mode(true);
   
@@ -199,8 +195,7 @@ void setup(void) {
   else { //если удалось подключиться к известной сети
     //digitalWrite(LED_BUILTIN, LOW);
   }
-  mqttClient.setServer(mqtt_server, 1883);
-  mqttClient.setCallback(callback);
+  
   //запросы веб сервера
   server.on("/", []() {
     if (!server.authenticate(www_username, www_password)) {
@@ -316,6 +311,13 @@ void setup(void) {
   ftpSrv.begin("admin", "admin");
   //relay0.load();
   //pir3.load();
+  mqttClient.setServer(mqtt_server, 1883);
+  mqttClient.setCallback(callback);
+  relay0.init(relay_pin);
+  pir3.init(pir_pin);
+  delay(60000);
+  sendRelayDataToMqttBroker(relay0.getState());
+  sendSensorDataToMqttBroker(); 
 }
 
 void loop(void) {
