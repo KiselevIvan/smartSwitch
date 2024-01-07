@@ -4,7 +4,7 @@ class Relay
 {
   public:
     Relay();
-    void init(byte pin = 0, bool initialState = LOW, String name = "Relay");
+    void init(byte pin = 0, bool initialState = HIGH, String name = "Relay");
     void setState(bool state);
     void setName(String name);
     bool getState();
@@ -36,7 +36,7 @@ void Relay::init(byte pin, bool initialState, String name)
 // метод для установки состояния реле
 void Relay::setState(bool state)
 {
-  digitalWrite(pin, state ? LOW : HIGH);
+  digitalWrite(pin, state);
   this->state = state;
 }
 
