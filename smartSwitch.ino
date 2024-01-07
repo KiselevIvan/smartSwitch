@@ -4,11 +4,11 @@
 #include <ESP8266mDNS.h>
 #include <FS.h>              // Библиотека для работы с файловой системой
 #include <ESP8266FtpServer.h>// Библиотека для работы с SPIFFS по FTP
-#include "CTBot.h"
+//#include <CTBot.h>
 #include <EEPROM.h>
-#include "configuration.h"
-#include "relay.h"
-#include "PIR.h"
+#include "src/configuration.h"
+#include "src/relay.h"
+#include "src/PIR.h"
 #include <PubSubClient.h>
 
 #define MAX_SRV_CLIENTS 5
@@ -30,7 +30,7 @@ PirSensor pir3;
 
 ESP8266WebServer server(80);//веб сервер
 FtpServer ftpSrv;  //ftp сервер
-CTBot telegramBot;
+//CTBot telegramBot;
 int64_t accessList[10];
 byte tailsAccessList = 0;
 String accessPassword = "!qwer$";
